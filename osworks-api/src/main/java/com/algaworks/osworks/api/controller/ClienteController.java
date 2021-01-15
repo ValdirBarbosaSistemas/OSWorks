@@ -3,9 +3,12 @@ package com.algaworks.osworks.api.controller;
 import java.util.List;
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +23,7 @@ import com.algaworks.osworks.domain.repository.ClienteRepository;
 
 @RestController // Serve para dizer que a classe é um controlador REST
 @RequestMapping("/clientes") // Tudo o que tiver em '/clientes' ele vai fazer a requisição
+// VER MAIS SOBRE O ASSUNTO DE RESTCONTROLLER E GETMAPPING
 public class ClienteController {
 
 	@Autowired // Dessa forma eu estou querendo pegar as informações de ClienteRepository
@@ -45,10 +49,11 @@ public class ClienteController {
 //		return manager.createQuery("from Cliente", Cliente.class).getResultList();
 
 		return clienteRepository.findAll();
-		// return clienteRepository.findByNome("Joao");
+//		 return clienteRepository.findByNome("João da Silva");
+//		return clienteRepository.findByNomeContaining("Si"); 
 	}
 
-	@GetMapping("/clientes/{clienteId}")
+	@GetMapping("/{clienteId}")
 	public ResponseEntity<Cliente> buscar(@PathVariable Long clienteId) {
 		Optional<Cliente> cliente = clienteRepository.findById(clienteId);
 //		return cliente.orElse(null); // No caso se não encontrar nenhum cliente ele retorna null
@@ -60,20 +65,36 @@ public class ClienteController {
 
 	@PostMapping // Toda alteração ele passa por aqui devido ao POST do http
 	@ResponseStatus(HttpStatus.CREATED)
-	public Cliente adicionarCliente(@RequestBody Cliente cliente) { // O 'RequestBody' serve para transf. o json em
-																	// objeto cliente
+	public Cliente adicionarCliente(@Valid @RequestBody Cliente cliente) { // O 'RequestBody' serve para transf. o json
+																			// do
+		// POSTMAN em objeto cliente
 		return clienteRepository.save(cliente);
 	}
 
 	@PutMapping("/{clienteId}")
-	public ResponseEntity<Cliente> atualizar(@PathVariable Long clienteId, @RequestBody Cliente cliente) {
-		if (clienteRepository.existsById(clienteId)) {
-			return ResponseEntity.notFound().build();
+	public ResponseEntity<Cliente> atualizar(@Valid @PathVariable Long clienteId, @RequestBody Cliente cliente) {
+		if (!clienteRepository.existsById(clienteId)) {
+			return ResponseEntity.notFound().build(); // Questões do '@Valid' ver a implementação em 'Cliente'
 		}
 
 		cliente.setId(clienteId);
 		cliente = clienteRepository.save(cliente);
 		return ResponseEntity.ok(cliente);
 	}
-	// VER MAIS SOBRE O ASSUNTO DE RESTCONTROLLER E GETMAPPING
+
+	@DeleteMapping("/{clienteId}")
+	public ResponseEntity<Void> remover(@PathVariable Long clienteId) { // Como é uma remoção o correto seria colocar
+																		// como void
+		if (!clienteRepository.existsById(clienteId)) {
+			return ResponseEntity.notFound().build();
+		}
+
+		clienteRepository.deleteById(clienteId);
+
+		return ResponseEntity.noContent().build();
+		/*
+		 * Parâmetro de resposta correta para o tipo delete '204'. Ao invés de colocar o
+		 * 200, pois assim que efetuar a transação, ele automaticamente exclui o dado
+		 */
+	}
 }

@@ -4,15 +4,27 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 @Entity
 public class Cliente {
-
+	/*
+	 * O Bean validation serve para voce colocar regras no cadastro de um objeto, ou
+	 * seja, as suas próprias validações
+	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Long id;
+	@NotBlank // Quer dizer que ele vai 'passar direto' cadastros de clientes com espaços em
+				// branco, vazios etc
 	public String nome;
+	@NotBlank
+	@Email
 	public String email;
+	@NotBlank
+	@Size(max = 20)
 	public String telefone;
 
 	// Getters e Setters
