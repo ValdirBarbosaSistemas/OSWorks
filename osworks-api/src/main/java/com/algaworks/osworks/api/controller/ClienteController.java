@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.algaworks.osworks.domain.model.Cliente;
 import com.algaworks.osworks.domain.repository.ClienteRepository;
+import com.algaworks.osworks.domain.service.CadastroClienteService;
 
 @RestController // Serve para dizer que a classe é um controlador REST
 @RequestMapping("/clientes") // Tudo o que tiver em '/clientes' ele vai fazer a requisição
@@ -30,6 +31,9 @@ public class ClienteController {
 				// (Injeção de dependência)
 	private ClienteRepository clienteRepository;
 
+	@Autowired
+	private CadastroClienteService cadastroClienteService;
+	
 //	@PersistenceContext // Desse modo ele vai 'injetar' as dependencias do EntityManager
 //	private EntityManager manager;
 
@@ -68,7 +72,7 @@ public class ClienteController {
 	public Cliente adicionarCliente(@Valid @RequestBody Cliente cliente) { // O 'RequestBody' serve para transf. o json
 																			// do
 		// POSTMAN em objeto cliente
-		return clienteRepository.save(cliente);
+		return cadastroClienteService.salvar(cliente);
 	}
 
 	@PutMapping("/{clienteId}")
@@ -78,7 +82,7 @@ public class ClienteController {
 		}
 
 		cliente.setId(clienteId);
-		cliente = clienteRepository.save(cliente);
+		cliente = cadastroClienteService.salvar(cliente);
 		return ResponseEntity.ok(cliente);
 	}
 
@@ -89,7 +93,7 @@ public class ClienteController {
 			return ResponseEntity.notFound().build();
 		}
 
-		clienteRepository.deleteById(clienteId);
+		cadastroClienteService.excluir(clienteId);
 
 		return ResponseEntity.noContent().build();
 		/*
